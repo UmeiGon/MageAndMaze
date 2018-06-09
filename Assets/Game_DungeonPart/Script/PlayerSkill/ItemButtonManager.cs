@@ -12,14 +12,13 @@ public class ItemButtonManager : MonoBehaviour
     [SerializeField]
     private GameObject eleLvUpCheckPanel;
     [SerializeField]
-    private GameObject syouhiPanel;
-    [SerializeField]
     private GameObject blockkingPanel;
     [SerializeField]
     private GameObject AttributeTraningPanel;
     private Player player;
     private const int maxSyouhiItem = 3;
-    private GameObject[] syouhiItemsImg = new GameObject[maxSyouhiItem];
+    [SerializeField]
+    private UseItemTextSetter[] useItemTexts;
     private List<GameObject> createItemsButton = new List<GameObject>();
     private List<int> canCreateItemsId = new List<int>();
     private int traningStoneColor;
@@ -34,20 +33,20 @@ public class ItemButtonManager : MonoBehaviour
         items = GameObject.Find("GameObjectParent").GetComponentInChildren<PlayerItem>().items;
         player = GameObject.Find("GameObjectParent").GetComponentInChildren<Player>();
         playerAAD = player.GetComponent<AtkAndDef>();
-        for ( int i = 0; i < 12; i++ )
+        for (int i = 0; i < 12; i++)
         {
             createItemsButton.Add(transform.Find("CreateImage (" + i + ")").gameObject);
         }
-        for ( int i = 0; i < maxSyouhiItem; i++ )
-        {
-            syouhiItemsImg[i] = syouhiPanel.transform.Find("SyouhiItem (" + i + ")").gameObject;
-        }
+
         selectedPanel();
         setCreateItems();
         UpdateUseItemSyuren();
-        syouhiItemsImg[0].GetComponent<Image>().sprite = items[0].itemImage;
-        syouhiItemsImg[1].GetComponent<Image>().sprite = items[1].itemImage;
-        syouhiItemsImg[2].GetComponent<Image>().sprite = items[2].itemImage;
+        //ソウルストーンのimageをset
+        for (int i = 0; i < useItemTexts.Length; i++)
+        {
+            useItemTexts[i].ItemImage.sprite = items[i].itemImage;
+        }
+
         lvUpCheckReload();
         useItemReload();
         eleLvUpCheckPanel.SetActive(false);
@@ -56,14 +55,14 @@ public class ItemButtonManager : MonoBehaviour
 
     void UpdateUseItemSyuren()
     {
-        useItemSyuren[(int)PlayerItem.stone.RED_STONE] = 5 + ( (int)( ( playerAAD.FlameMagicPower - 1 ) * 10 ) / 5 ) * 5;
-        useItemSyuren[(int)PlayerItem.stone.YELLOW_STONE] = 5 + ( (int)( ( playerAAD.LightMagicPower - 1 ) * 10 ) / 5 ) * 5;
-        useItemSyuren[(int)PlayerItem.stone.BLUE_STONE] = 5 + ( (int)( ( playerAAD.IceMagicPower - 1 ) * 10 ) / 5 ) * 5;
+        useItemSyuren[(int)PlayerItem.stone.RED_STONE] = 5 + ((int)((playerAAD.FlameMagicPower - 1) * 10) / 5) * 5;
+        useItemSyuren[(int)PlayerItem.stone.YELLOW_STONE] = 5 + ((int)((playerAAD.LightMagicPower - 1) * 10) / 5) * 5;
+        useItemSyuren[(int)PlayerItem.stone.BLUE_STONE] = 5 + ((int)((playerAAD.IceMagicPower - 1) * 10) / 5) * 5;
     }
 
     private void OnEnable()
     {
-        if ( inited )
+        if (inited)
         {
             selectedPanel();
             setCreateItems();
@@ -77,10 +76,10 @@ public class ItemButtonManager : MonoBehaviour
     private void selectedPanel(int panelnum = -1)
     {
         selectPanelNum = panelnum;
-        bool active = ( panelnum != -1 );
+        bool active = (panelnum != -1);
         setumeiPanel.SetActive(active);
         blockkingPanel.SetActive(active);
-        if ( active )
+        if (active)
         {
             setumeiPanel.transform.Find("description").GetComponent<Text>().text = items[canCreateItemsId[panelnum]].setumei;
             setumeiPanel.transform.Find("name").GetComponent<Text>().text = "" + items[canCreateItemsId[panelnum]].name;
@@ -92,6 +91,7 @@ public class ItemButtonManager : MonoBehaviour
     public void BlockkingOnClick()
     {
         selectedPanel();
+        useItemReload();
         eleLvUpCheckPanel.SetActive(false);
     }
 
@@ -109,22 +109,22 @@ public class ItemButtonManager : MonoBehaviour
         setCreateItems();
         //もし前選んだスキルが今回も作れるなら、引き続き同じアイテムの場所に作成パネルが呼ばれる。
         int panelnum = -1;
-        for ( int i = 0; i < canCreateItemsId.Count; i++ )
+        for (int i = 0; i < canCreateItemsId.Count; i++)
         {
-            if ( createItemId == canCreateItemsId[i] )
+            if (createItemId == canCreateItemsId[i])
             {
                 panelnum = i;
             }
         }
         selectedPanel(panelnum);
-        useItemReload(( panelnum == -1 ) ? null : items[canCreateItemsId[panelnum]].syouhiSozai);
+        useItemReload((panelnum == -1) ? null : items[canCreateItemsId[panelnum]].syouhiSozai);
 
     }
 
 
     public void eleLvUpOnClick(int stone_color)
     {
-        switch ( stone_color )
+        switch (stone_color)
         {
             case 0:
                 eleLvUpCheckPanel.transform.Find("Attribute").GetComponent<Text>().text = "火属性修練";
@@ -149,15 +149,15 @@ public class ItemButtonManager : MonoBehaviour
     }
     public void yesOnClick()
     {
-        if ( items == null ) return;
+        if (items == null||!canCreate(traningStoneColor) ) return;
 
         items[traningStoneColor].kosuu -= useItemSyuren[traningStoneColor];
         player.ElementLevelUp(traningStoneColor + 1);
         Dictionary<int, int> useStones = new Dictionary<int, int>();
         UpdateUseItemSyuren();
-        if ( items[traningStoneColor].kosuu < useItemSyuren[traningStoneColor] ) eleLvUpCheckPanel.SetActive(false);
+        if (items[traningStoneColor].kosuu < useItemSyuren[traningStoneColor]) eleLvUpCheckPanel.SetActive(false);
         useStones[(int)traningStoneColor] = useItemSyuren[traningStoneColor];
-        useItemReload(( items[traningStoneColor].kosuu >= useItemSyuren[traningStoneColor] ) ? useStones : null);
+        useItemReload((items[traningStoneColor].kosuu >= useItemSyuren[traningStoneColor]) ? useStones : null);
         setCreateItems();
         GameObject.Find("GameObjectParent").GetComponentInChildren<PlayerDetailInfo>().UpdateStatusText();
         lvUpCheckReload();
@@ -170,7 +170,7 @@ public class ItemButtonManager : MonoBehaviour
     //アイテム個数を増やす
     private void ItemCreate()
     {
-        foreach ( var i in items[canCreateItemsId[selectPanelNum]].syouhiSozai )
+        foreach (var i in items[canCreateItemsId[selectPanelNum]].syouhiSozai)
         {
             items[i.Key].kosuu -= i.Value;
         }
@@ -181,9 +181,9 @@ public class ItemButtonManager : MonoBehaviour
 
     private void lvUpCheckReload()
     {
-        foreach ( int s in Enum.GetValues(typeof(PlayerItem.stone)) )
+        foreach (int s in Enum.GetValues(typeof(PlayerItem.stone)))
         {
-            switch ( s )
+            switch (s)
             {
                 case 0:
                     AttributeTraningPanel.transform.Find("" + s).transform.Find("Rate").GetComponent<Text>().text = string.Format("{0:0.00}", player.atkAndDef.FlameMagicPower) + "倍";
@@ -196,7 +196,7 @@ public class ItemButtonManager : MonoBehaviour
                     break;
             }
 
-            if ( useItemSyuren[s] <= items[s].kosuu )
+            if (useItemSyuren[s] <= items[s].kosuu)
             {
                 AttributeTraningPanel.transform.Find("" + s).GetComponent<Button>().interactable = true;
 
@@ -213,22 +213,16 @@ public class ItemButtonManager : MonoBehaviour
     private void useItemReload(Dictionary<int, int> use_items = null)
     {
 
-        int n = 0;
-        //一旦リセット処理
-        foreach ( var i in syouhiItemsImg )
+        for (int i = 0; i < useItemTexts.Length; i++)
         {
-            syouhiItemsImg[n].transform.Find("temoti").GetComponent<Text>().text = "x" + items[n].kosuu;
-            syouhiItemsImg[n].transform.Find("syouhi").GetComponent<Text>().text = "";
-            n++;
-        }
-        if ( use_items != null )
-        {
-            n = 0;
-            foreach ( var i in use_items )
+            useItemTexts[i].ItemValueText.text = "x" + items[i].kosuu;
+            if (use_items != null && use_items.ContainsKey(i) && use_items[i] != 0)
             {
-                syouhiItemsImg[i.Key].transform.Find("temoti").GetComponent<Text>().text = "x" + items[i.Key].kosuu;
-                syouhiItemsImg[i.Key].transform.Find("syouhi").GetComponent<Text>().text = ( i.Value == 0 ) ? "" : "-" + i.Value;
-                n++;
+                useItemTexts[i].UseItemValueText.text = "-" + use_items[i];
+            }
+            else
+            {
+                useItemTexts[i].UseItemValueText.text = "";
             }
         }
     }
@@ -236,16 +230,16 @@ public class ItemButtonManager : MonoBehaviour
     void setCreateItems()
     {
         canCreateItemsId.Clear();
-        foreach ( var i in items )
+        foreach (var i in items)
         {
-            if ( canCreate(i.Key) )
+            if (canCreate(i.Key))
             {
                 canCreateItemsId.Add(i.Key);
             }
         }
-        for ( int n = 0; n < 12; n++ )
+        for (int n = 0; n < 12; n++)
         {
-            if ( n < canCreateItemsId.Count )
+            if (n < canCreateItemsId.Count)
             {
                 createItemsButton[n].transform.Find("ItemImage").GetComponent<Image>().enabled = true;
                 createItemsButton[n].GetComponentInChildren<Button>().interactable = true;
@@ -262,17 +256,17 @@ public class ItemButtonManager : MonoBehaviour
 
     bool canCreate(int itemId)
     {
-        if ( items[itemId].syouhiSozai == null )
+        if (items[itemId].syouhiSozai == null)
         {
             return false;
         }
-        if ( items[itemId].syouhiSozai.Count == 0 )
+        if (items[itemId].syouhiSozai.Count == 0)
         {
             return false;
         }
-        foreach ( var i in items[itemId].syouhiSozai )
+        foreach (var i in items[itemId].syouhiSozai)
         {
-            if ( !( items[i.Key].kosuu >= i.Value ) )
+            if (!(items[i.Key].kosuu >= i.Value))
             {
                 return false;
             }

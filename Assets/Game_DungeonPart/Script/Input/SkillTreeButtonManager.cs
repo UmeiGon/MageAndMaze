@@ -170,8 +170,11 @@ public class SkillTreeButtonManager : MonoBehaviour
             foreach ( int k in pst.Skills[i.GetComponent<SkillButton>().skillnum].ZenteiSkillId )
             {
                 var dis = Vector3.Distance(Buttons[k].transform.localPosition, i.transform.localPosition);
-                var diff = ( Buttons[k].transform.position - i.transform.position ).normalized;
-                var br = Instantiate(BranchPre, i.transform.position, Quaternion.FromToRotation(Vector3.up, diff), treeBack.transform);
+                var diff = ( Buttons[k].transform.localPosition - i.transform.localPosition ).normalized;
+                var br = Instantiate(BranchPre, treeBack.transform);
+                br.transform.rotation = Quaternion.FromToRotation(Vector3.up, diff);
+                br.transform.parent = treeBack.transform;
+                br.transform.localPosition = i.transform.localPosition;
                 br.GetComponent<RectTransform>().sizeDelta = new Vector2(20, dis);
                 br.transform.SetAsFirstSibling();
                 Buttons[k].GetComponent<SkillButton>().Branch.Add(br);
