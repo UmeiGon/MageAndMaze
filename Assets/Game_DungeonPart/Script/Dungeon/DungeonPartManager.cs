@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DungeonPartManager : MonoBehaviour {
+public class DungeonPartManager : MonoBehaviour
+{
 
     [SerializeField] GameObject parent;
     Player player;
@@ -30,12 +31,13 @@ public class DungeonPartManager : MonoBehaviour {
         //SaveDataReset();
     }
     // Use this for initialization
-    void Start () {
+    void Start()
+    {
         if (!parent) parent = GameObject.Find("GameObjectParent");
         player = parent.GetComponentInChildren<Player>();
 
         floor = SaveData.GetInt("Floor", 1);
-        if ( floor % 8 >= 5 && floor % 8 <= 7 && floor != 30)
+        if (floor % 8 >= 5 && floor % 8 <= 7 && floor != 30)
         {
             dungeonType = 1;
         }
@@ -67,7 +69,7 @@ public class DungeonPartManager : MonoBehaviour {
         StartCoroutine(sceneTransitionManager.FadeIn());
 
         // フロア開始時イベント
-        if ( tutorialMn.IsTutorialON )
+        if (tutorialMn.IsTutorialON)
         {
             // チュートリアルの開始
             tutorialMn.StartBehaviour();
@@ -89,11 +91,11 @@ public class DungeonPartManager : MonoBehaviour {
         }
 
         // アイテム個数の初期化
-        if ( tutorialMn.IsTutorialON )
+        if (tutorialMn.IsTutorialON)
         {
             playerItem.items[0].kosuu = 9;
         }
-        else if ( floor == 1 && 0 == SaveData.GetInt("IsInterrupt", 0 ))
+        else if (floor == 1 && 0 == SaveData.GetInt("IsInterrupt", 0))
         {
             // チュートリアルOFFの1階スタート時
             playerItem.items[0].kosuu = 3;
@@ -104,9 +106,10 @@ public class DungeonPartManager : MonoBehaviour {
         turnMn.DungeonSave();
     }
 
-	// Update is called once per frame
-	void Update () {
-	}
+    // Update is called once per frame
+    void Update()
+    {
+    }
 
     public void NextFloor()
     {
@@ -118,7 +121,7 @@ public class DungeonPartManager : MonoBehaviour {
         seSet.PlaySE(SESet.Type.STAIRS_DOWN);
         yield return StartCoroutine(sceneTransitionManager.FadeOut());
 
-        if ( floor == 30 )
+        if (floor == 30)
         {
             SaveGameClear();
             UnityEngine.SceneManagement.SceneManager.LoadScene("GameClear");
@@ -130,7 +133,8 @@ public class DungeonPartManager : MonoBehaviour {
         turnMn.DungeonSave();
         SaveData.SetInt("IsInterrupt", 0);
         SaveData.Save();
-        UnityEngine.SceneManagement.SceneManager.LoadScene("Dungeon1");
+        UnityEngine.SceneManagement.SceneManager.LoadScene("Dungeon1", UnityEngine.SceneManagement.LoadSceneMode.Single);
+        UnityEngine.SceneManagement.SceneManager.LoadScene("CanvasScene", UnityEngine.SceneManagement.LoadSceneMode.Additive);
     }
 
     public void SaveGameClear()
@@ -140,14 +144,14 @@ public class DungeonPartManager : MonoBehaviour {
 
     public void DownFloor(int i)
     {
-        floor = ( i - 1 );
+        floor = (i - 1);
         NextFloor();
     }
 
     public static void SaveDataReset()
     {
         Debug.Log("セーブデータリセット");
-        
+
         // リセットで消してはならないデータを残してリセット
         int _isTutorialON = SaveData.GetInt("IsTutorialON", 1);
         SaveData.Clear();
@@ -166,6 +170,6 @@ public class DungeonPartManager : MonoBehaviour {
     public void DebugChangeSpeed()
     {
         isDoubleSpeed = !isDoubleSpeed;
-        Time.timeScale = ( isDoubleSpeed ) ? 2 : 1;
+        Time.timeScale = (isDoubleSpeed) ? 2 : 1;
     }
 }

@@ -29,8 +29,11 @@ public class UISwitch : MonoBehaviour {
     public bool Interactable = true;
     public DungUIType UIType;
 
-	// Use this for initialization
-	void Start () {
+   
+    // Use this for initialization
+    void Start () {
+        uis[3] = SkillTreeButtonManager.GetInstance().transform.root.GetComponent<Canvas>();
+        uis[2] = ItemButtonManager.GetInstance().transform.root.GetComponent<Canvas>();
         for ( int t = 0; t < uis.Length; t++ )
         {
             if ( uis[t] )

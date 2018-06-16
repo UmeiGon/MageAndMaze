@@ -4,11 +4,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ItemButtonManager : MonoBehaviour
+public class ItemButtonManager : UMI.DSingleton<ItemButtonManager>
 {
     private Dictionary<int, ItemData> items;
-    [SerializeField]
-    private GameObject setumeiPanel;
+    public GameObject setumeiPanel;
     [SerializeField]
     private GameObject eleLvUpCheckPanel;
     [SerializeField]
@@ -149,7 +148,7 @@ public class ItemButtonManager : MonoBehaviour
     }
     public void yesOnClick()
     {
-        if (items == null||!canCreate(traningStoneColor) ) return;
+        if (items == null) return;
 
         items[traningStoneColor].kosuu -= useItemSyuren[traningStoneColor];
         player.ElementLevelUp(traningStoneColor + 1);

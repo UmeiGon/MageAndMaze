@@ -96,14 +96,18 @@ public class TitleSceneManager : MonoBehaviour {
     {
         yield return StartCoroutine(sceneTransitionManager.FadeOut());
 
-        if ( !isContinue )
+        if (!isContinue)
         {
             // 中断フラグOFF（最初から）
             DungeonPartManager.SaveDataReset();
             //SaveData.Save();
             SceneManager.LoadScene("Opening");
         }
-        else SceneManager.LoadScene("Dungeon1");
+        else
+        {
+            SceneManager.LoadScene("Dungeon1", LoadSceneMode.Single);
+            SceneManager.LoadScene("CanvasScene",LoadSceneMode.Additive);
+        }
     }
 
     //public void ToDungeon2Scene()

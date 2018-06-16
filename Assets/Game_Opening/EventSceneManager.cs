@@ -20,5 +20,6 @@ public class EventSceneManager : MonoBehaviour {
     {
         yield return StartCoroutine(sceneTransitionMn.FadeOut());
         UnityEngine.SceneManagement.SceneManager.LoadScene(nextSceneName);
+        UnityEngine.SceneManagement.SceneManager.LoadScene("CanvasScene",UnityEngine.SceneManagement.LoadSceneMode.Additive);
     }
 }
