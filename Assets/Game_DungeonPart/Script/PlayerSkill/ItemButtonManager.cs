@@ -17,8 +17,15 @@ public class ItemButtonManager : UMI.DSingleton<ItemButtonManager>
     private Player player;
     private const int maxSyouhiItem = 3;
     [SerializeField]
+    RectTransform seiseiButton;
+    public RectTransform SeiseiButton { get { return seiseiButton; } }
+
+    [SerializeField]
     private UseItemTextSetter[] useItemTexts;
     private List<GameObject> createItemsButton = new List<GameObject>();
+    public List<GameObject> CreateItemsButton {
+        get { return createItemsButton; }
+    }
     private List<int> canCreateItemsId = new List<int>();
     private int traningStoneColor;
     //0~11のパネルの番号-1は未選択

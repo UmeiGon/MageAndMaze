@@ -40,7 +40,8 @@ public class TutorialManager : MonoBehaviour
         }
     }
 
-    [SerializeField] GameObject arrow;
+    [SerializeField] GameObject arrowParent;
+    [SerializeField] RectTransform arrowRect;
 
     [System.Serializable]
     class ArrowTransformData
@@ -61,7 +62,7 @@ public class TutorialManager : MonoBehaviour
         parent = GameObject.Find("GameObjectParent");
         dMn = parent.GetComponentInChildren<DungeonPartManager>();
         isTutorialON = (dMn.floor == 1 && SaveData.GetInt("IsTutorialON", 1) == 1);
-        arrow.SetActive(false);
+        arrowParent.SetActive(false);
     }
 
     // Use this for initialization
@@ -111,7 +112,7 @@ public class TutorialManager : MonoBehaviour
         player = parent.GetComponentInChildren<Player>();
         TurnManager turnMn = parent.GetComponentInChildren<TurnManager>();
 
-        arrow.SetActive(false);
+        arrowParent.SetActive(false);
         eventSceneManager.EventStart("tutorial1");
         // セリフ
         while (uiSwitch.UIType != DungUIType.BATTLE)
@@ -119,13 +120,14 @@ public class TutorialManager : MonoBehaviour
             // バトルUIに戻ってくるまで待つ
             yield return null;
         }
-        arrow.SetActive(true);
+        arrowParent.SetActive(true);
 
         // 移動
         SetNextArrow();
         yield return new WaitForSeconds(0.2f);
         while (player.action != ActionType.MOVE)
         {
+            HomingArrow();
             yield return null;
         }
 
@@ -135,6 +137,7 @@ public class TutorialManager : MonoBehaviour
         yield return new WaitForSeconds(0.2f);
         while (player.charaDir == charaDir)
         {
+            HomingArrow();
             yield return null;
         }
 
@@ -145,12 +148,13 @@ public class TutorialManager : MonoBehaviour
         yield return new WaitForSeconds(0.2f);
         while (Mathf.Abs(cameraParent.transform.eulerAngles.y - eulerY) < 80)
         {
+            HomingArrow();
             yield return null;
         }
 
         // プレイヤーが特定位置に到達するまで移動許可
         TutorialNumber++;
-        arrow.SetActive(false);
+        arrowParent.SetActive(false);
         while (player.pos.x < 10)
         {
             yield return null;
@@ -163,7 +167,7 @@ public class TutorialManager : MonoBehaviour
             // バトルUIに戻ってくるまで待つ
             yield return null;
         }
-        arrow.SetActive(true);
+        arrowParent.SetActive(true);
 
 
         // 魔法選択ボタン
@@ -171,14 +175,17 @@ public class TutorialManager : MonoBehaviour
         yield return new WaitForSeconds(0.2f);
         while (!magicSelectWindow.activeSelf)
         {
+            HomingArrow();
             yield return null;
         }
 
         // マジックショット
+        magicSelectWindow.SetActive(true);
         SetNextArrow();
         yield return new WaitForSeconds(0.2f);
         while (player.skillNum != 1)
         {
+            HomingArrow();
             // 魔法選択ウィンドウ閉じさせない
             if (!magicSelectWindow.activeSelf)
             {
@@ -193,7 +200,7 @@ public class TutorialManager : MonoBehaviour
             yield return null;
         }
 
-        arrow.SetActive(false);
+        arrowParent.SetActive(false);
         narrationWindow.SetActive(false);
 
         eventSceneManager.EventStart("tutorial3");
@@ -203,13 +210,14 @@ public class TutorialManager : MonoBehaviour
             // バトルUIに戻ってくるまで待つ
             yield return null;
         }
-        arrow.SetActive(true);
+        arrowParent.SetActive(true);
 
         // バッグボタン
         SetNextArrow();
         yield return new WaitForSeconds(0.2f);
         while (uiSwitch.UIType != DungUIType.INVENTRY)
         {
+            HomingArrow();
             yield return null;
         }
 
@@ -218,33 +226,53 @@ public class TutorialManager : MonoBehaviour
         yield return new WaitForSeconds(0.2f);
         while (uiSwitch.UIType != DungUIType.SKILLTREE)
         {
+            HomingArrow();
             yield return null;
         }
 
         SkillTreeButtonManager skillTreeButtonManager = SkillTreeButtonManager.GetInstance();
 
         // 「フレイムショット」を選択
+        //skilltreebuttonmanagerが他シーンにあり、インスペクターから参照できないのでここで情報を入力
+        arrowTransformData[TutorialNumber] = new ArrowTransformData
+        {
+            angle = 0.25f,
+            targetRect = skillTreeButtonManager.SkillButtons[101].GetComponent<RectTransform>(),
+        };
         SetNextArrow();
         yield return new WaitForSeconds(0.2f);
         while (skillTreeButtonManager.selectSkill != 101)
         {
+            HomingArrow();
             yield return null;
         }
 
         // 「習得する」ボタン
+        arrowTransformData[TutorialNumber] = new ArrowTransformData
+        {
+            angle = 0.25f,
+            targetRect = skillTreeButtonManager.GetSyutokuButton.GetComponent<RectTransform>(),
+        };
         SetNextArrow();
         yield return new WaitForSeconds(0.2f);
         while (!playerSkillTree.Skills[101].Syutoku)
         {
+            HomingArrow();
             yield return null;
         }
 
         // スキルセットの2番
+        arrowTransformData[TutorialNumber] = new ArrowTransformData
+        {
+            angle = 0.75f,
+            targetRect = skillTreeButtonManager.RegSkillButton[1].GetComponent<RectTransform>(),
+        };
         SetNextArrow();
         yield return new WaitForSeconds(0.2f);
         bool isSetSkill = false;
         while (!isSetSkill)
         {
+            HomingArrow();
             foreach (int skill in playerSkillTree.SetSkills)
             {
                 if (skill == 101)
@@ -255,7 +283,7 @@ public class TutorialManager : MonoBehaviour
             yield return null;
         }
 
-        arrow.SetActive(false);
+        arrowParent.SetActive(false);
         eventSceneManager.EventStart("tutorial4");
         // セリフ
         while (uiSwitch.UIType != DungUIType.SKILLTREE)
@@ -263,34 +291,47 @@ public class TutorialManager : MonoBehaviour
             // スキルツリーに戻ってくるまで待つ
             yield return null;
         }
-        arrow.SetActive(true);
+        arrowParent.SetActive(true);
 
         // 「修練＆精製」ボタン
         SetNextArrow();
         yield return new WaitForSeconds(0.2f);
         while (uiSwitch.UIType != DungUIType.PRACTICE_AND_ITEMCRAFT)
         {
+            HomingArrow();
             yield return null;
         }
 
         // 「攻撃力アップのオーブ」ボタン
+        arrowTransformData[TutorialNumber] = new ArrowTransformData
+        {
+            angle = 0.75f,
+            targetRect = ItemButtonManager.GetInstance().CreateItemsButton[0].GetComponent<RectTransform>(),
+        };
         SetNextArrow();
         yield return new WaitForSeconds(0.2f);
         while (!itemDescriotionPanel.activeSelf)
         {
+            HomingArrow();
             yield return null;
         }
 
         // 「精製」ボタン
+        arrowTransformData[TutorialNumber] = new ArrowTransformData
+        {
+            angle = 0.25f,
+            targetRect = ItemButtonManager.GetInstance().SeiseiButton,
+        };
         SetNextArrow();
         yield return new WaitForSeconds(0.2f);
         while (playerItem.items[100].kosuu == 0)
         {
+            HomingArrow();
             yield return null;
         }
 
         // これ以降TutoriaNumberは動かない
-        arrow.SetActive(false);
+        arrowParent.SetActive(false);
         eventSceneManager.EventStart("tutorial5");
         // セリフ
         while (uiSwitch.UIType != DungUIType.PRACTICE_AND_ITEMCRAFT)
@@ -365,13 +406,45 @@ public class TutorialManager : MonoBehaviour
             yield return null;
         }
     }
-
+    //対象が動いても追従する
+    void HomingArrow()
+    {
+        if (arrowTransformData[TutorialNumber - 1].targetRect != null)
+        {
+            arrowParent.transform.position = arrowTransformData[TutorialNumber - 1].targetRect.position;
+        }
+    }
     void SetNextArrow()
     {
-        Vector3 arrowpos = arrowTransformData[TutorialNumber].targetRect.position;
-        arrow.transform.position = arrowpos;
-        var dis = Vector3.Distance(Vector3.zero, new Vector3(arrowTransformData[TutorialNumber].targetRect.sizeDelta.x, arrowTransformData[TutorialNumber].targetRect.sizeDelta.y));
-        arrow.transform.eulerAngles =new Vector3(0,0,Mathf.Rad2Deg*arrowTransformData[TutorialNumber].angle * Mathf.PI * 2.0f);
+        arrowParent.transform.position = arrowTransformData[TutorialNumber].targetRect.position;
+        var tageRect = arrowTransformData[TutorialNumber].targetRect;
+        var tageHalfX = tageRect.sizeDelta.x * 0.5f;
+        var tageHalfY = tageRect.sizeDelta.y * 0.5f;
+        var targetSize = new Vector3(tageHalfX, tageHalfY);
+        var dis = Vector3.Distance(Vector3.zero, targetSize);
+        arrowRect.localPosition = new Vector3(0, -dis, 0);
+        arrowParent.transform.eulerAngles = new Vector3(0, 0, Mathf.Rad2Deg * arrowTransformData[TutorialNumber].angle * Mathf.PI * 2.0f);
+        Vector3.Distance(arrowRect.transform.position, arrowParent.transform.position);
+        //fix
+        var subx = arrowRect.transform.position.x - arrowParent.transform.position.x;
+        var absSubX = Mathf.Abs(subx);
+        if (absSubX > tageHalfX)
+        {
+            float fixX = 0;
+            fixX = absSubX - tageHalfX;
+            fixX *= (subx > 0) ? -1 : 1;
+            arrowRect.transform.Translate( fixX,0, 0,Space.World);
+        }
+        var subY = arrowRect.transform.position.y - arrowParent.transform.position.y;
+        var absSubY = Mathf.Abs(subY);
+        if (absSubY > tageHalfY)
+        {
+            float fixY = 0;
+            fixY = absSubY - tageHalfY;
+            fixY *= (subY > 0) ? -1 : 1;
+            arrowRect.transform.Translate(0, fixY, 0, Space.World);
+        }
+
         TutorialNumber++;
         Debug.Log("TutorialNumber = " + TutorialNumber);
     }

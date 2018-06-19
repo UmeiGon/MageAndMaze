@@ -20,6 +20,10 @@ public class SkillTreeButtonManager : UMI.DSingleton<SkillTreeButtonManager>
     private GameObject ScrollPanel;
     [SerializeField]
     private GameObject SyutokuButton;
+    public GameObject GetSyutokuButton
+    {
+        get { return SyutokuButton; }
+    }
     [SerializeField]
     private GameObject registPanel;
     [SerializeField]
@@ -33,8 +37,19 @@ public class SkillTreeButtonManager : UMI.DSingleton<SkillTreeButtonManager>
     private GameObject[] SyadanPanel;
 
     private Dictionary<int, GameObject> skillButtons = new Dictionary<int, GameObject>();
+    public Dictionary<int, GameObject> SkillButtons
+    {
+        private set { skillButtons = value; }
+        get { return skillButtons; }
+    }
+
+
     public GameObject[] SoulStoneImage = new GameObject[TREE_SUU];
     private GameObject[] regSkillButton = new GameObject[SET_SUU];
+    public GameObject[] RegSkillButton
+    {
+        get { return regSkillButton; }
+    }
 
     private PlayerSkillTree pst;
     private bool stated = false;
@@ -319,7 +334,7 @@ public class SkillTreeButtonManager : UMI.DSingleton<SkillTreeButtonManager>
         //横計算
         if (tp.x < wide_size * 0.0f)
         {
-            popPos.x += pop_rect.sizeDelta.x * pop_rect.lossyScale.x * 0.6f * 1+but_rect.sizeDelta.x;
+            popPos.x += pop_rect.sizeDelta.x * pop_rect.lossyScale.x * 0.6f * 1 + but_rect.sizeDelta.x;
         }
         else if (tp.x < wide_size * 0.3f)
         {
@@ -335,11 +350,11 @@ public class SkillTreeButtonManager : UMI.DSingleton<SkillTreeButtonManager>
         }
         else
         {
-            popPos.x += pop_rect.sizeDelta.x * pop_rect.lossyScale.x * 0.6f * -1- but_rect.sizeDelta.x;
+            popPos.x += pop_rect.sizeDelta.x * pop_rect.lossyScale.x * 0.6f * -1 - but_rect.sizeDelta.x;
         }
 
         //縦計算
-        if (tp.y<height_size*0.0f)
+        if (tp.y < height_size * 0.0f)
         {
             popPos.y += pop_rect.sizeDelta.y * pop_rect.lossyScale.y * 1.0f * 1 + but_rect.sizeDelta.y;
         }
@@ -357,7 +372,7 @@ public class SkillTreeButtonManager : UMI.DSingleton<SkillTreeButtonManager>
         }
         else
         {
-            popPos.y += pop_rect.sizeDelta.y * pop_rect.lossyScale.y * 0.5f * -1-but_rect.sizeDelta.y;
+            popPos.y += pop_rect.sizeDelta.y * pop_rect.lossyScale.y * 0.5f * -1 - but_rect.sizeDelta.y;
         }
         Debug.Log(but_rect.position);
         Debug.Log(tp);
